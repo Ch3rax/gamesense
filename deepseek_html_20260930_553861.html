@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forum UI</title>
+<style>
+:root{
+  --bg:#111;
+  --panel:#292929;
+  --panel2:#303030;
+  --border:#3c3c3c;
+  --line:#3a3a3a;
+  --text:#bdbdbd;
+  --muted:#858585;
+  --link:#65a7df;
+  --accent:#91c900;
+  --red:#f04444;
+  --gold:#e0b341;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:12px Arial,Helvetica,sans-serif}
+body{overflow-y:scroll}
+.top{height:3px;background:linear-gradient(90deg,#0b72ff 0%,#3e52ff 20%,#7b2cff 40%,#df2cff 58%,#ff8b00 78%,#d8ff00 100%);border-bottom:1px solid #151515;box-shadow:0 0 5px rgba(80,100,255,.45)}
+.wrap{width:845px;margin:11px auto}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:3px;box-shadow:0 1px 2px #000;margin-bottom:10px;overflow:hidden}
+.brand{padding:8px 10px 7px;font-size:18px;color:#ddd;border-bottom:1px solid #222}
+.brand i{font-style:normal;color:var(--accent)}
+
+.nav{height:27px;background:var(--panel2);display:flex;align-items:center;gap:16px;padding:0 10px}
+.nav button{border:0;background:none;color:#bbb;padding:0;cursor:pointer;font:inherit}
+.nav button:hover{
+  color:#fff;
+  text-decoration: underline;
+  text-decoration-color: #fff;
+  text-underline-offset: 3px;
+}
+.nav button.nav-premium { color: var(--red); font-weight: bold; }
+.nav button.nav-premium:hover { color: #ff6666; }
+
+.nav-bell-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:#ddd;
+  cursor:default;
+  user-select:none;
+  pointer-events:none;
+  width:14px;
+}
+.nav-bell-icon svg{display:block}
+
+.account{padding:7px 10px;line-height:1.45;font-size:11px;}
+.account .placeholder{color:#ddd;}
+.account a { text-decoration: none; color: var(--link); }
+.account a:hover { text-decoration: underline; }
+.account .dot-sep { color: #666; }
+
+/* Role tags */
+.role-tag{
+  display:inline-block;
+  padding:1px 6px;
+  border-radius:2px;
+  font-size:10px;
+  margin-left:6px;
+  vertical-align:1px;
+  font-weight:normal;
+}
+.role-admin{background:#5a3c00;color:#ffcc66;border:1px solid #7a5500;}
+.role-beta{background:#1a3a4a;color:#65c9e0;border:1px solid #2a5468;}
+.role-premium-cs2{background:#3a2a00;color:#e0b341;border:1px solid #5a4400;}
+.role-premium-csgo{background:#3a1a2a;color:#e080c0;border:1px solid #5a2a44;}
+.role-banned{background:#3a1a1a;color:#ff6666;border:1px solid #6a2a2a;}
+
+.chat-head,.section-head{background:var(--panel2);padding:7px 10px;color:#ddd;font-weight:bold;border-bottom:1px solid #1d1d1d}
+.chat{height:174px;position:relative;background:#262626}
+.chat-list{height:143px;overflow:auto;padding:7px 10px;line-height:1.55}
+.chat-input{position:absolute;bottom:0;left:0;right:0;display:flex;border-top:1px solid #222;background:#292929}
+.chat-input input{flex:1;background:#222;border:0;color:#ddd;padding:6px 8px;outline:none}
+.chat-input button{background:#333;color:#bbb;border:0;padding:0 12px;cursor:pointer}
+.section-head{border-bottom:2px solid var(--accent)}
+
+.row{display:grid;grid-template-columns:1fr 290px;min-height:50px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.main{position:relative;padding:8px 10px 7px 25px}
+.main:before{content:"";position:absolute;left:8px;top:17px;width:7px;height:7px;background:#5d86a5;border-radius:1px}
+.main.empty:before{background:#444}
+.title{font-weight:bold;color:#ddd}
+.desc{color:var(--muted);margin-top:2px}
+.last{padding:7px 10px;border-left:1px solid var(--line);line-height:1.3;color:#888}
+.last a{color:var(--link);text-decoration:none}
+
+.reg-form{padding:14px}
+fieldset{border:1px solid #444;border-radius:2px;margin:0 0 12px 0;padding:8px 12px}
+legend{color:#888;font-size:11px;padding:0 6px;width:auto;margin-left:4px}
+.reg-label{display:block;color:#ddd;margin-bottom:4px;font-size:11px;font-weight:bold}
+.reg-input{width:100%;max-width:320px;background:#1f1f1f;border:1px solid #444;color:#ddd;padding:6px 8px;font-size:11px;font-family:inherit;border-radius:2px}
+.reg-input:focus{outline:none;border-color:var(--link)}
+.reg-hint{color:#858585;font-size:10.5px;margin-top:5px;line-height:1.4}
+.reg-pair{display:flex;gap:20px}
+.reg-pair input{width:180px}
+.reg-captcha{width:280px;height:65px;background:#fff;border:1px solid #555;display:flex;align-items:center;padding:0 10px;gap:10px;margin-top:6px;border-radius:2px}
+.reg-captcha input{margin:0;accent-color:var(--link);transform:scale(1.1)}
+.reg-captcha span{color:#333;font-size:12px;font-weight:bold}
+.reg-captcha-brand{font-size:10px;color:#555;margin-left:auto;text-align:right;line-height:1.1}
+.reg-check-group{margin:6px 0;color:#aaa;display:flex;align-items:center;gap:8px;font-size:11px}
+.reg-check-group input[type=radio]{margin:0;accent-color:var(--link)}
+.reg-submit{margin-top:8px}
+.reg-submit button{background:#353535;border:1px solid #555;color:#ddd;padding:6px 16px;cursor:pointer;font-size:11px;font-family:inherit;border-radius:2px}
+.reg-submit button:hover{background:#444;border-color:#888}
+.reg-error{color:#f06b6b;margin-top:8px;display:none;font-size:11px}
+.reg-link{color:var(--link);text-decoration:none;margin-right:10px}
+.reg-link:hover{text-decoration:underline}
+
+.admin-table{width:100%;border-collapse:collapse;font-size:11px}
+.admin-table th{background:#252525;color:#aaa;text-align:left;padding:7px 10px;border-bottom:1px solid #3a3a3a;font-weight:bold;font-size:10.5px;letter-spacing:.3px}
+.admin-table td{padding:7px 10px;border-bottom:1px solid #2f2f2f;color:#ccc;vertical-align:middle}
+.admin-table tr:hover td{background:#2c2c2c}
+.invite-code{font-family:"Courier New",monospace;color:var(--gold);font-weight:bold;font-size:12px;letter-spacing:.5px}
+.invite-used{color:#666;text-decoration:line-through}
+.invite-revoked{color:#8a3a3a;text-decoration:line-through;}
+.copy-btn{background:#333;border:1px solid #555;color:#aaa;font-size:10px;padding:2px 8px;cursor:pointer;border-radius:2px;font-family:inherit}
+.copy-btn:hover{background:#444;color:#fff;border-color:#888}
+.role-select{background:#1f1f1f;border:1px solid #444;color:#ddd;padding:3px 6px;font-size:11px;font-family:inherit;border-radius:2px}
+.danger-btn{background:#3a1a1a;border:1px solid #6a2a2a;color:#e08080;font-size:10px;padding:2px 8px;cursor:pointer;border-radius:2px;font-family:inherit;margin-left:4px}
+.danger-btn:hover{background:#5a2020;color:#ffaaaa}
+.warn-btn{background:#3a301a;border:1px solid #6a552a;color:#e0b341;font-size:10px;padding:2px 8px;cursor:pointer;border-radius:2px;font-family:inherit;margin-left:4px}
+.warn-btn:hover{background:#5a4820;color:#ffcc66}
+.ok-btn{background:#1a3a1a;border:1px solid #2a6a2a;color:#7fd07f;font-size:10px;padding:2px 8px;cursor:pointer;border-radius:2px;font-family:inherit;margin-left:4px}
+.ok-btn:hover{background:#205a20;color:#aaffaa}
+.gen-result{margin-top:10px;padding:10px;background:#1a2a1a;border:1px solid #3a5a3a;border-radius:2px;display:none}
+.gen-result label{display:block;color:#91c900;font-size:10.5px;margin-bottom:4px}
+.gen-result .row-flex{display:flex;gap:8px;align-items:center}
+.gen-result input{flex:1;background:#0f0f0f;border:1px solid #3a5a3a;color:var(--gold);padding:5px 8px;font-family:"Courier New",monospace;font-size:12px;font-weight:bold;letter-spacing:.5px;border-radius:2px}
+.admin-empty{color:#666;padding:12px;text-align:center;font-style:italic}
+
+/* Profile Page */
+.profile-layout{display:flex; gap:10px; align-items:flex-start}
+.profile-sidebar{width:170px; flex-shrink:0;}
+.profile-menu-item{padding:3px 0;}
+.profile-menu-item a{color:var(--link); text-decoration:none; font-size:11px;}
+.profile-menu-item a:hover{text-decoration:underline;}
+.profile-menu-item.active a{font-weight:bold; color:#fff;}
+.profile-main{flex:1; min-width:0;}
+.btn-sm{background:#353535;border:1px solid #555;color:#ddd;padding:4px 12px;cursor:pointer;font-size:11px;border-radius:2px;font-family:inherit;}
+.btn-sm:hover{background:#444;border-color:#888;}
+
+@media(max-width:970px){.wrap{width:calc(100% - 24px)}}
+@media(max-width:680px){
+  .row{grid-template-columns:1fr}
+  .last{border-left:0;border-top:1px solid var(--line)}
+  .reg-pair{flex-direction:column;gap:10px}
+  .reg-pair input{width:100%;max-width:320px}
+  .profile-layout{flex-direction:column}
+  .profile-sidebar{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="top"></div>
+
+<main class="wrap">
+  <section class="panel" id="siteHeader">
+    <div class="brand">game<i>sense</i></div>
+    <nav class="nav">
+      <span class="nav-bell-icon" aria-hidden="true">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      </span>
+      <button data-page="home">Index</button>
+
+      <button data-page="search" class="nav-logged-only">Search</button>
+      <button data-page="profile" class="nav-logged-only">Profile</button>
+      <button data-page="pm" class="nav-logged-only">PM</button>
+      <button data-page="premium" class="nav-logged-only nav-premium">Premium</button>
+
+      <button class="nav-admin-btn" data-page="admin" style="display:none;color:#e0b341;">Admin</button>
+
+      <button class="nav-reg-btn" data-page="register">Register</button>
+      <button class="nav-login-btn" data-page="login">Login</button>
+
+      <button class="nav-logout-btn" data-page="logout" style="display:none;">Logout</button>
+    </nav>
+    <div class="account" id="accountArea">
+      <span class="placeholder">You are not logged in.</span>
+    </div>
+  </section>
+
+  <!-- Register Page -->
+  <div id="registerPageView" style="display:none">
+    <section class="panel">
+      <div class="section-head">Register</div>
+      <div class="reg-form">
+        <form id="regForm" onsubmit="submitRegister(event)">
+          <fieldset>
+            <legend>Your username must be alphanumeric between 3 and 25 characters long</legend>
+            <label class="reg-label">Username</label>
+            <input type="text" id="regUsername" class="reg-input" required autocomplete="username" pattern="[A-Za-z0-9]{3,25}" title="3-25 alphanumeric characters">
+          </fieldset>
+
+          <fieldset>
+            <legend>Please enter and confirm your chosen password</legend>
+            <div class="reg-pair">
+              <div>
+                <label class="reg-label">Password</label>
+                <input type="password" id="regPassword" class="reg-input" required autocomplete="new-password">
+              </div>
+              <div>
+                <label class="reg-label">Confirm password</label>
+                <input type="password" id="regPassword2" class="reg-input" required autocomplete="new-password">
+              </div>
+            </div>
+            <div class="reg-hint">Passwords must be at least 10 characters long. Passwords are case sensitive.</div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Enter a valid email address</legend>
+            <label class="reg-label">Email</label>
+            <input type="email" id="regEmail" class="reg-input" required autocomplete="email">
+          </fieldset>
+
+          <fieldset>
+            <legend>You must be invited to join this forum</legend>
+            <label class="reg-label">Invitation code</label>
+            <input type="text" id="regInvite" class="reg-input" required placeholder="INV-XXXX-XXXX-XXXX" style="text-transform:uppercase;letter-spacing:1px;font-family:'Courier New',monospace;">
+            <div class="reg-hint">Invitation codes are issued by administrators. Each code can only be used once.</div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Are you a human?</legend>
+            <div class="reg-hint" style="margin-bottom:6px">Please prove that you're a human being.</div>
+            <div class="reg-captcha">
+              <input type="checkbox">
+              <span>I'm not a robot</span>
+              <div class="reg-captcha-brand">reCAPTCHA<br>Privacy - Terms</div>
+            </div>
+          </fieldset>
+
+          <div class="reg-submit">
+            <button type="submit">Register</button>
+          </div>
+          <div id="regError" class="reg-error"></div>
+        </form>
+      </div>
+    </section>
+    <section class="panel">
+      <div style="padding:7px 10px;color:#ddd;font-size:11px">GameSense 2026</div>
+    </section>
+  </div>
+
+  <!-- Login Page -->
+  <div id="loginPageView" style="display:none">
+    <section class="panel">
+      <div class="section-head">Login</div>
+      <div class="reg-form">
+        <form id="loginForm" onsubmit="submitLogin(event)">
+          <fieldset>
+            <legend>Enter your username and password below</legend>
+            <div class="reg-pair">
+              <div>
+                <label class="reg-label">Username</label>
+                <input type="text" id="loginUsername" class="reg-input" required autocomplete="username">
+              </div>
+              <div>
+                <label class="reg-label">Password</label>
+                <input type="password" id="loginPassword" class="reg-input" required autocomplete="current-password">
+              </div>
+            </div>
+            <div class="reg-check-group" style="margin-top: 8px;">
+              <input type="checkbox" id="loginRemember"> <label for="loginRemember" style="font-weight:normal;color:#aaa;margin:0">Log me in automatically each time I visit.</label>
+            </div>
+            <div class="reg-hint">If you have not registered or have forgotten your password click on the appropriate link below.</div>
+            <div class="reg-hint" style="margin-top: 4px;">
+              <a href="#" onclick="showRegisterPage();return false" class="reg-link">Not registered yet?</a>
+              <a href="#" class="reg-link">Forgotten your password?</a>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Are you a human?</legend>
+            <div class="reg-hint" style="margin-bottom:6px">Please prove that you're a human being.</div>
+            <div class="reg-captcha">
+              <input type="checkbox">
+              <span>I'm not a robot</span>
+              <div class="reg-captcha-brand">reCAPTCHA<br>Privacy - Terms</div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Two factor authentication</legend>
+            <label class="reg-label">2FA code</label>
+            <input type="text" id="login2FA" class="reg-input" style="width: 180px;">
+            <div class="reg-hint">This field can be ignored if two factor authentication is not enabled on your account.</div>
+          </fieldset>
+
+          <div class="reg-submit">
+            <button type="submit">Login</button>
+          </div>
+          <div id="loginError" class="reg-error"></div>
+        </form>
+      </div>
+    </section>
+    <section class="panel">
+      <div style="padding:7px 10px;color:#ddd;font-size:11px">GameSense 2026</div>
+    </section>
+  </div>
+
+  <!-- Profile Page -->
+  <div id="profilePageView" style="display:none">
+    <div class="profile-layout">
+      <div class="profile-sidebar">
+        <section class="panel" style="margin-bottom:0;">
+          <div class="section-head" style="padding:6px 10px; font-size:11px;">Profile menu</div>
+          <div style="padding:8px 10px; font-size:11px; line-height:1.9;">
+            <div class="profile-menu-item"><a href="#" onclick="alert('Essentials');return false;">Essentials</a></div>
+            <div class="profile-menu-item"><a href="#" onclick="alert('Authentication');return false;">Authentication</a></div>
+            <div class="profile-menu-item active"><a href="#" onclick="return false;">Premium</a></div>
+            <div class="profile-menu-item"><a href="#" onclick="alert('Personality');return false;">Personality</a></div>
+            <div class="profile-menu-item"><a href="#" onclick="alert('Display');return false;">Display</a></div>
+            <div class="profile-menu-item"><a href="#" onclick="alert('Privacy');return false;">Privacy</a></div>
+          </div>
+        </section>
+      </div>
+      <div class="profile-main">
+        <section class="panel" style="margin-bottom:0;">
+          <div class="section-head" id="profileTitle" style="padding:6px 10px; font-size:11px;">User options</div>
+          <div style="padding:14px;">
+
+            <fieldset id="profileSubFieldset" style="margin-bottom:12px;">
+              <legend>Subscription expire time</legend>
+              <div id="profileSubLine" style="color:#ddd; font-size:11px;"></div>
+            </fieldset>
+
+            <fieldset style="margin-bottom:12px;">
+              <legend>Request a discord ID reset</legend>
+              <label class="reg-label">Enter the reason for this request.</label>
+              <input type="text" id="discordResetReason" class="reg-input" style="width:220px; margin-bottom:8px;">
+              <br>
+              <button type="button" class="btn-sm" onclick="alert('Discord ID reset request submitted.');">Reset discord ID</button>
+            </fieldset>
+
+            <fieldset style="margin-bottom:12px;">
+              <legend>Download latest client</legend>
+              <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start;">
+                <button type="button" class="btn-sm" onclick="alert('Downloading CS2 client...');">Download CS2</button>
+                <button type="button" class="btn-sm" onclick="alert('Downloading CS:GO client...');">Download CS:GO</button>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Invite codes</legend>
+              <div id="profileInvites" style="color:#ddd; font-size:11px;"></div>
+            </fieldset>
+
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPageView" style="display:none">
+    <section class="panel">
+      <div class="section-head">Admin Panel · Invitation Codes</div>
+      <div class="reg-form">
+        <fieldset>
+          <legend>Generate a new invitation code (administrators only)</legend>
+          <label class="reg-label">Assign role to the new user</label>
+          <select id="inviteRole" class="reg-input" style="margin-bottom:10px;">
+            <option value="beta">Beta Tester</option>
+            <option value="premium-cs2">Premium (Counter-Strike 2)</option>
+            <option value="premium-csgo">Premium (Counter-Strike: Global Offensive)</option>
+            <option value="admin">Administrator</option>
+          </select>
+          <button onclick="generateInvite()" style="background:#2a3a2a;border:1px solid #4a6a4a;color:#91c900;padding:6px 16px;cursor:pointer;font-size:11px;border-radius:2px;font-family:inherit;">
+            + Generate Invitation Code
+          </button>
+          <div id="genResult" class="gen-result">
+            <label>Invitation code generated. Click to copy and share:</label>
+            <div class="row-flex">
+              <input type="text" id="genCodeOutput" readonly>
+              <button class="copy-btn" onclick="copyGenCode()" style="padding:5px 12px;">Copy</button>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>All invitation codes</legend>
+          <div style="max-height:320px;overflow-y:auto;">
+            <table class="admin-table" id="invitesTable">
+              <thead>
+                <tr>
+                  <th style="width:38%;">Code</th>
+                  <th style="width:16%;">Role</th>
+                  <th style="width:16%;">Status</th>
+                  <th style="width:14%;">Used by</th>
+                  <th style="width:16%;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="invitesBody"></tbody>
+            </table>
+          </div>
+          <div id="invitesEmpty" class="admin-empty" style="display:none;">No invitation codes yet. Click the button above to generate one.</div>
+        </fieldset>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">User Management</div>
+      <div class="reg-form">
+        <fieldset>
+          <legend>All registered users (you can change their roles or ban them)</legend>
+          <table class="admin-table" id="usersTable">
+            <thead>
+              <tr>
+                <th style="width:28%;">Username</th>
+                <th style="width:22%;">Current role</th>
+                <th style="width:50%;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </fieldset>
+      </div>
+    </section>
+  </div>
+
+  <!-- Pre-login Info -->
+  <div id="preLoginView">
+    <section class="panel">
+      <div class="section-head">Info</div>
+      <div style="padding:10px;color:#ddd;line-height:1.5">
+        You do not have permission to view these forums.<br>
+        <a href="#" onclick="showRegisterPage();return false" style="color:var(--link);text-decoration:none">Go back</a>
+      </div>
+    </section>
+    <section class="panel" style="margin-top:10px">
+      <div style="padding:7px 10px;color:#ddd">GameSense 2026</div>
+    </section>
+  </div>
+
+  <!-- Logged-in View -->
+  <div id="loggedInView" style="display:none">
+    <section class="panel">
+      <div class="chat-head">Chat</div>
+      <div class="chat">
+        <div class="chat-list" id="chatList">
+          <div><span style="color:#888">[System]</span> Welcome to GameSense chat.</div>
+        </div>
+        <form class="chat-input" onsubmit="sendChat(event)">
+          <input id="chatInput" autocomplete="off" placeholder="Message...">
+          <button>Send</button>
+        </form>
+      </div>
+    </section>
+    <div id="forumArea"></div>
+  </div>
+</main>
+
+<script>
+/* ================================================================
+   Administrator account
+   Username: Cherax
+   Password: admin123
+   ================================================================ */
+const ADMIN_USERNAME = 'Cherax';
+const ADMIN_PASSWORD = 'admin123';
+const LEGACY_ADMIN_USERNAMES = ['admin'];
+
+/* ========== Data layer ========== */
+function getUsers(){ try{ return JSON.parse(localStorage.getItem("forum_users")||"{}") }catch(e){ return {} } }
+function saveUsers(u){ localStorage.setItem("forum_users", JSON.stringify(u)) }
+function getInvites(){ try{ return JSON.parse(localStorage.getItem("forum_invites")||"{}") }catch(e){ return {} } }
+function saveInvites(i){ localStorage.setItem("forum_invites", JSON.stringify(i)) }
+function getCurrentUser(){ return localStorage.getItem("forum_current_user") }
+function setCurrentUser(n){ localStorage.setItem("forum_current_user", n) }
+function clearCurrentUser(){ localStorage.removeItem("forum_current_user") }
+
+/* ========== Initialize admin + migrate legacy data ========== */
+function initAdmin(){
+  const users = getUsers();
+  let changed = false;
+
+  LEGACY_ADMIN_USERNAMES.forEach(legacy => {
+    if(legacy.toLowerCase() !== ADMIN_USERNAME.toLowerCase() && users[legacy]){
+      if(users[legacy].role === 'admin'){
+        delete users[legacy];
+        changed = true;
+      }
+    }
+  });
+
+  // Migrate old 'user' (Member) role to 'beta'
+  Object.keys(users).forEach(k => {
+    if(users[k].role === 'user'){
+      users[k].role = 'beta';
+      changed = true;
+    }
+    // Ensure 'banned' field exists
+    if(typeof users[k].banned === 'undefined'){
+      users[k].banned = false;
+    }
+  });
+
+  const existingKey = Object.keys(users).find(k => k.toLowerCase() === ADMIN_USERNAME.toLowerCase());
+  if(!existingKey){
+    users[ADMIN_USERNAME] = {
+      password: ADMIN_PASSWORD,
+      email: 'admin@local',
+      role: 'admin',
+      banned: false,
+      createdAt: Date.now(),
+      usedInvite: null
+    };
+    changed = true;
+  }else{
+    if(users[existingKey].role !== 'admin'){
+      users[existingKey].role = 'admin';
+      changed = true;
+    }
+    users[existingKey].banned = false;
+  }
+
+  if(changed) saveUsers(users);
+
+  const cur = getCurrentUser();
+  if(cur && !users[cur]){
+    clearCurrentUser();
+  }
+  if(cur){
+    const match = Object.keys(users).find(k => k.toLowerCase() === cur.toLowerCase());
+    if(match && match !== cur){
+      setCurrentUser(match);
+    }
+  }
+}
+
+/* ========== Role definitions (Member removed) ========== */
+const ROLE_LABELS = {
+  admin: { name: 'Administrator', cls: 'role-admin' },
+  beta: { name: 'Beta Tester', cls: 'role-beta' },
+  'premium-cs2': { name: 'Premium (Counter-Strike 2)', cls: 'role-premium-cs2' },
+  'premium-csgo': { name: 'Premium (Counter-Strike: Global Offensive)', cls: 'role-premium-csgo' }
+};
+function roleTag(role){
+  const info = ROLE_LABELS[role];
+  if(!info) return '';
+  return `<span class="role-tag ${info.cls}">${info.name}</span>`;
+}
+function roleName(role){
+  const info = ROLE_LABELS[role];
+  return info ? info.name : role;
+}
+function isAdmin(name){
+  const users = getUsers();
+  return users[name] && users[name].role === 'admin';
+}
+
+/* ========== Invitation codes (longer format: INV-XXXX-XXXX-XXXX) ========== */
+function generateInviteCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  function seg(len){
+    let s = '';
+    for(let i=0;i<len;i++) s += chars[Math.floor(Math.random()*chars.length)];
+    return s;
+  }
+  return 'INV-' + seg(4) + '-' + seg(4) + '-' + seg(4);
+}
+
+function generateInvite(){
+  const user = getCurrentUser();
+  if(!isAdmin(user)){
+    alert('Only administrators can generate invitation codes.');
+    return;
+  }
+  const role = document.getElementById('inviteRole').value;
+  const code = generateInviteCode();
+  const invites = getInvites();
+  invites[code] = {
+    role: role,
+    createdBy: user,
+    createdAt: Date.now(),
+    usedBy: null,
+    usedAt: null,
+    revoked: false
+  };
+  saveInvites(invites);
+
+  document.getElementById('genCodeOutput').value = code;
+  document.getElementById('genResult').style.display = 'block';
+  renderInvites();
+  renderUsers();
+}
+
+function copyGenCode(){
+  const inp = document.getElementById('genCodeOutput');
+  inp.select();
+  try {
+    document.execCommand('copy');
+    alert('Invitation code copied: ' + inp.value);
+  } catch(e) {
+    alert('Copy failed. Please select and copy manually.');
+  }
+}
+
+/* ========== Render invites (with revoke) ========== */
+function renderInvites(){
+  const invites = getInvites();
+  const body = document.getElementById('invitesBody');
+  const empty = document.getElementById('invitesEmpty');
+  const keys = Object.keys(invites);
+
+  if(keys.length === 0){
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  keys.sort((a,b) => invites[b].createdAt - invites[a].createdAt);
+
+  body.innerHTML = keys.map(code => {
+    const inv = invites[code];
+    const used = !!inv.usedBy;
+    const revoked = !!inv.revoked;
+
+    let statusHTML;
+    if(revoked){
+      statusHTML = '<span style="color:#8a3a3a;">Revoked</span>';
+    }else if(used){
+      statusHTML = '<span style="color:#666;">Used</span>';
+    }else{
+      statusHTML = '<span style="color:#91c900;">Available</span>';
+    }
+
+    let actionsHTML = '';
+    if(!used && !revoked){
+      actionsHTML = `
+        <button class="copy-btn" onclick="copyInvite('${code}')">Copy</button>
+        <button class="danger-btn" onclick="revokeInvite('${code}')">Revoke</button>
+      `;
+    }else if(revoked){
+      actionsHTML = '<span style="color:#666;font-size:10.5px;">—</span>';
+    }else{
+      actionsHTML = '<span style="color:#666;font-size:10.5px;">—</span>';
+    }
+
+    return `
+      <tr>
+        <td>
+          <span class="invite-code ${used?'invite-used':''} ${revoked?'invite-revoked':''}">${code}</span>
+        </td>
+        <td>${roleName(inv.role)}</td>
+        <td>${statusHTML}</td>
+        <td>${used ? escapeHtml(inv.usedBy) : '—'}</td>
+        <td>${actionsHTML}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function copyInvite(code){
+  const ta = document.createElement('textarea');
+  ta.value = code;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    alert('Copied: ' + code);
+  } catch(e) {
+    alert('Copy failed');
+  }
+  ta.remove();
+}
+
+function revokeInvite(code){
+  if(!isAdmin(getCurrentUser())){
+    alert('Only administrators can revoke invitation codes.');
+    return;
+  }
+  if(!confirm('Revoke invitation code "' + code + '"? It can no longer be used to register.')) return;
+  const invites = getInvites();
+  if(!invites[code]) return;
+  invites[code].revoked = true;
+  invites[code].revokedAt = Date.now();
+  invites[code].revokedBy = getCurrentUser();
+  saveInvites(invites);
+  renderInvites();
+}
+
+/* ========== Render users (with ban / unban) ========== */
+function renderUsers(){
+  const users = getUsers();
+  const body = document.getElementById('usersBody');
+  const me = getCurrentUser();
+  const names = Object.keys(users);
+
+  names.sort((a,b) => {
+    const ra = users[a].role, rb = users[b].role;
+    if(ra === 'admin' && rb !== 'admin') return -1;
+    if(rb === 'admin' && ra !== 'admin') return 1;
+    // Banned users after non-banned
+    const ba = users[a].banned ? 1 : 0;
+    const bb = users[b].banned ? 1 : 0;
+    if(ba !== bb) return ba - bb;
+    return (users[b].createdAt||0) - (users[a].createdAt||0);
+  });
+
+  body.innerHTML = names.map(name => {
+    const u = users[name];
+    const isAdminUser = u.role === 'admin';
+    const isSelf = name === me;
+    const isBanned = !!u.banned;
+
+    // Role display: append banned tag if banned
+    const roleDisplay = roleTag(u.role) + (isBanned ? '<span class="role-tag role-banned" style="margin-left:4px;">BANNED</span>' : '');
+
+    let ops = '';
+    if(isAdminUser){
+      ops = '<span style="color:#666;font-size:10.5px;">Cannot be modified</span>';
+    }else if(isSelf){
+      ops = '<span style="color:#666;font-size:10.5px;">(You)</span>';
+    }else{
+      const banBtn = isBanned
+        ? `<button class="ok-btn" onclick="unbanUser('${escapeAttr(name)}')">Unban</button>`
+        : `<button class="warn-btn" onclick="banUser('${escapeAttr(name)}')">Ban</button>`;
+
+      ops = `
+        <select class="role-select" onchange="changeRole('${escapeAttr(name)}', this.value)">
+          <option value="beta" ${u.role==='beta'?'selected':''}>Beta Tester</option>
+          <option value="premium-cs2" ${u.role==='premium-cs2'?'selected':''}>Premium (CS2)</option>
+          <option value="premium-csgo" ${u.role==='premium-csgo'?'selected':''}>Premium (CS:GO)</option>
+          <option value="admin" ${u.role==='admin'?'selected':''}>Administrator</option>
+        </select>
+        ${banBtn}
+        <button class="danger-btn" onclick="deleteUser('${escapeAttr(name)}')">Delete</button>
+      `;
+    }
+
+    return `
+      <tr>
+        <td>${escapeHtml(name)}</td>
+        <td>${roleDisplay || '<span style="color:#666;">—</span>'}</td>
+        <td>${ops}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function changeRole(name, newRole){
+  if(!isAdmin(getCurrentUser())){
+    alert('Only administrators can change user roles.');
+    return;
+  }
+  const users = getUsers();
+  if(!users[name]) return;
+  if(users[name].role === 'admin'){
+    alert('Cannot modify the administrator account.');
+    return;
+  }
+  users[name].role = newRole;
+  saveUsers(users);
+  renderUsers();
+  updateAccount();
+}
+
+function banUser(name){
+  if(!isAdmin(getCurrentUser())){
+    alert('Only administrators can ban users.');
+    return;
+  }
+  const users = getUsers();
+  if(!users[name]) return;
+  if(users[name].role === 'admin'){
+    alert('Cannot ban the administrator account.');
+    return;
+  }
+  const reason = prompt('Reason for banning "' + name + '"? (optional)');
+  if(reason === null) return; // cancelled
+  users[name].banned = true;
+  users[name].banReason = reason || '';
+  users[name].bannedAt = Date.now();
+  users[name].bannedBy = getCurrentUser();
+  saveUsers(users);
+  renderUsers();
+  alert('User "' + name + '" has been banned.');
+}
+
+function unbanUser(name){
+  if(!isAdmin(getCurrentUser())){
+    alert('Only administrators can unban users.');
+    return;
+  }
+  const users = getUsers();
+  if(!users[name]) return;
+  users[name].banned = false;
+  users[name].banReason = '';
+  saveUsers(users);
+  renderUsers();
+  alert('User "' + name + '" has been unbanned.');
+}
+
+function deleteUser(name){
+  if(!isAdmin(getCurrentUser())){
+    alert('Only administrators can delete users.');
+    return;
+  }
+  const users = getUsers();
+  if(!users[name]) return;
+  if(users[name].role === 'admin'){
+    alert('Cannot delete the administrator account.');
+    return;
+  }
+  if(!confirm('Delete user "' + name + '"? This action cannot be undone.')) return;
+  delete users[name];
+  saveUsers(users);
+  renderUsers();
+  alert('Deleted user: ' + name);
+}
+
+/* ========== Subscription text (admin & beta return empty) ========== */
+function getSubscriptionText(role){
+  if(role === 'premium-cs2'){
+    return 'Subscription for Counter-Strike 2 · Permanent';
+  }else if(role === 'premium-csgo'){
+    return 'Subscription for Counter-Strike: Global Offensive · Permanent';
+  }
+  return '';
+}
+
+/* ========== View switching ========== */
+function updateAccount(){
+  const user = getCurrentUser();
+  const regPage = document.getElementById('registerPageView');
+  const loginPage = document.getElementById('loginPageView');
+  const adminPage = document.getElementById('adminPageView');
+  const profilePage = document.getElementById('profilePageView');
+  const preLogin = document.getElementById('preLoginView');
+  const loggedIn = document.getElementById('loggedInView');
+  const area = document.getElementById('accountArea');
+  const adminBtn = document.querySelector('.nav-admin-btn');
+  const logoutBtn = document.querySelector('.nav-logout-btn');
+  const regBtn = document.querySelector('.nav-reg-btn');
+  const loginBtn = document.querySelector('.nav-login-btn');
+  const loggedOnlyBtns = document.querySelectorAll('.nav-logged-only');
+
+  if(user){
+    const users = getUsers();
+    const u = users[user] || { role: 'beta' };
+
+    loggedOnlyBtns.forEach(b => b.style.display = 'inline-block');
+    regBtn.style.display = 'none';
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+
+    if(u.role === 'admin'){
+      adminBtn.style.display = 'inline-block';
+    }else{
+      adminBtn.style.display = 'none';
+    }
+
+    const subText = getSubscriptionText(u.role);
+    const subLineHTML = subText ? `<div>${subText}</div>` : '';
+    const bannedTag = u.banned ? '<span class="role-tag role-banned" style="margin-left:4px;">BANNED</span>' : '';
+
+    area.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+        <div>
+          <div>Logged in as <b style="color:#fff;">${escapeHtml(user)}</b>${roleTag(u.role)}${bannedTag}</div>
+          ${subLineHTML}
+          <div>
+            <a href="#" onclick="alert('FAQ');return false;">Frequently asked questions</a>
+            <span class="dot-sep"> • </span>
+            <a href="#" onclick="alert('Issues');return false;">Common issues</a>
+            <span class="dot-sep"> • </span>
+            <a href="#" onclick="alert('Discord');return false;">Support discord</a>
+          </div>
+        </div>
+        <div style="text-align:right; color:#888; white-space:nowrap;">
+          Topics: <a href="#" onclick="alert('Posted');return false;">Posted</a> | <a href="#" onclick="alert('New');return false;">New</a> | <a href="#" onclick="alert('Active');return false;">Active</a> | <a href="#" onclick="alert('Unanswered');return false;">Unanswered</a>
+        </div>
+      </div>
+    `;
+
+    regPage.style.display = 'none';
+    loginPage.style.display = 'none';
+    adminPage.style.display = 'none';
+    profilePage.style.display = 'none';
+    preLogin.style.display = 'none';
+    loggedIn.style.display = 'block';
+
+    renderForum();
+  }else{
+    loggedOnlyBtns.forEach(b => b.style.display = 'none');
+    regBtn.style.display = 'inline-block';
+    loginBtn.style.display = 'inline-block';
+    logoutBtn.style.display = 'none';
+    adminBtn.style.display = 'none';
+
+    area.innerHTML = '<span class="placeholder">You are not logged in.</span>';
+
+    regPage.style.display = 'none';
+    loginPage.style.display = 'none';
+    adminPage.style.display = 'none';
+    profilePage.style.display = 'none';
+    preLogin.style.display = 'block';
+    loggedIn.style.display = 'none';
+  }
+}
+
+function showRegisterPage(){
+  document.getElementById('preLoginView').style.display = 'none';
+  document.getElementById('loginPageView').style.display = 'none';
+  document.getElementById('adminPageView').style.display = 'none';
+  document.getElementById('profilePageView').style.display = 'none';
+  document.getElementById('loggedInView').style.display = 'none';
+  document.getElementById('registerPageView').style.display = 'block';
+  document.getElementById('regError').style.display = 'none';
+  document.getElementById('regForm').reset();
+}
+
+function showLoginPage(){
+  document.getElementById('preLoginView').style.display = 'none';
+  document.getElementById('registerPageView').style.display = 'none';
+  document.getElementById('adminPageView').style.display = 'none';
+  document.getElementById('profilePageView').style.display = 'none';
+  document.getElementById('loggedInView').style.display = 'none';
+  document.getElementById('loginPageView').style.display = 'block';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginForm').reset();
+}
+
+function showAdminPage(){
+  if(!isAdmin(getCurrentUser())){
+    alert('Access denied.');
+    return;
+  }
+  document.getElementById('preLoginView').style.display = 'none';
+  document.getElementById('registerPageView').style.display = 'none';
+  document.getElementById('loginPageView').style.display = 'none';
+  document.getElementById('profilePageView').style.display = 'none';
+  document.getElementById('loggedInView').style.display = 'none';
+  document.getElementById('adminPageView').style.display = 'block';
+  renderInvites();
+  renderUsers();
+}
+
+/* Profile page (opened by clicking Profile or Premium buttons) */
+function showProfilePage(){
+  const user = getCurrentUser();
+  if(!user){
+    alert('Please log in first.');
+    return;
+  }
+  const users = getUsers();
+  const u = users[user] || { role: 'beta' };
+
+  document.getElementById('profileTitle').textContent = user + ' - ' + roleName(u.role) + ' user options';
+
+  const subText = getSubscriptionText(u.role);
+  const subFieldset = document.getElementById('profileSubFieldset');
+  if(subText){
+    subFieldset.style.display = 'block';
+    document.getElementById('profileSubLine').textContent = subText;
+  }else{
+    subFieldset.style.display = 'none';
+  }
+
+  const invites = getInvites();
+  const mine = Object.keys(invites).filter(code =>
+    invites[code].createdBy === user && !invites[code].usedBy && !invites[code].revoked
+  );
+  const invitesEl = document.getElementById('profileInvites');
+  if(mine.length === 0){
+    invitesEl.textContent = 'You have no unused invitation codes.';
+  }else{
+    invitesEl.innerHTML = 'You have ' + mine.length + ' unused invitation code(s):<br>' +
+      mine.map(c => '<span class="invite-code" style="display:inline-block; margin-top:4px;">' + c + '</span>').join('<br>');
+  }
+
+  document.getElementById('preLoginView').style.display = 'none';
+  document.getElementById('registerPageView').style.display = 'none';
+  document.getElementById('loginPageView').style.display = 'none';
+  document.getElementById('adminPageView').style.display = 'none';
+  document.getElementById('loggedInView').style.display = 'none';
+  document.getElementById('profilePageView').style.display = 'block';
+}
+
+function goHome() {
+  document.getElementById('registerPageView').style.display = 'none';
+  document.getElementById('loginPageView').style.display = 'none';
+  document.getElementById('adminPageView').style.display = 'none';
+  document.getElementById('profilePageView').style.display = 'none';
+  if (getCurrentUser()) {
+    updateAccount();
+  } else {
+    showPreLogin();
+  }
+}
+
+function showPreLogin(){
+  document.getElementById('preLoginView').style.display = 'block';
+  document.getElementById('registerPageView').style.display = 'none';
+  document.getElementById('loginPageView').style.display = 'none';
+  document.getElementById('adminPageView').style.display = 'none';
+  document.getElementById('profilePageView').style.display = 'none';
+  document.getElementById('loggedInView').style.display = 'none';
+}
+
+function logout(){
+  clearCurrentUser();
+  updateAccount();
+  goHome();
+}
+
+/* ========== Register submit ========== */
+function submitRegister(e){
+  e.preventDefault();
+  const username = document.getElementById('regUsername').value.trim();
+  const pass = document.getElementById('regPassword').value;
+  const pass2 = document.getElementById('regPassword2').value;
+  const email = document.getElementById('regEmail').value.trim();
+  const inviteCode = document.getElementById('regInvite').value.trim().toUpperCase();
+  const error = document.getElementById('regError');
+  const users = getUsers();
+  const invites = getInvites();
+
+  error.style.display = 'none';
+
+  if(!/^[A-Za-z0-9]{3,25}$/.test(username)){
+    error.textContent = "Username must be alphanumeric between 3 and 25 characters."; error.style.display='block'; return;
+  }
+  if(pass.length < 10){
+    error.textContent = "Password must be at least 10 characters long."; error.style.display='block'; return;
+  }
+  if(pass !== pass2){
+    error.textContent = "Passwords do not match."; error.style.display='block'; return;
+  }
+  if(!/^\S+@\S+\.\S+$/.test(email)){
+    error.textContent = "Please enter a valid email address."; error.style.display='block'; return;
+  }
+  const lowerName = username.toLowerCase();
+  const conflict = Object.keys(users).some(u => u.toLowerCase() === lowerName);
+  if(conflict){
+    error.textContent = "Username is already taken."; error.style.display='block'; return;
+  }
+  if(!inviteCode){
+    error.textContent = "Invitation code is required."; error.style.display='block'; return;
+  }
+  const invite = invites[inviteCode];
+  if(!invite){
+    error.textContent = "Invalid invitation code. Please check and try again, or contact an administrator."; error.style.display='block'; return;
+  }
+  if(invite.revoked){
+    error.textContent = "This invitation code has been revoked by an administrator."; error.style.display='block'; return;
+  }
+  if(invite.usedBy){
+    error.textContent = "This invitation code has already been used."; error.style.display='block'; return;
+  }
+
+  users[username] = {
+    password: pass,
+    email: email,
+    role: invite.role || 'beta',
+    banned: false,
+    usedInvite: inviteCode,
+    createdAt: Date.now()
+  };
+  saveUsers(users);
+
+  invites[inviteCode].usedBy = username;
+  invites[inviteCode].usedAt = Date.now();
+  saveInvites(invites);
+
+  setCurrentUser(username);
+  alert("Registration successful! Welcome, " + username + ". Your role: " + roleName(invite.role || 'beta'));
+  updateAccount();
+}
+
+/* ========== Login submit (with ban check) ========== */
+function submitLogin(e){
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const error = document.getElementById('loginError');
+  const users = getUsers();
+
+  const match = Object.keys(users).find(u => u.toLowerCase() === username.toLowerCase());
+  if(!match || users[match].password !== password){
+    error.textContent = "Invalid username or password."; error.style.display='block'; return;
+  }
+  if(users[match].banned){
+    const reason = users[match].banReason ? ' Reason: ' + users[match].banReason : '';
+    error.innerHTML = "This account has been banned." + escapeHtml(reason); error.style.display='block'; return;
+  }
+  setCurrentUser(match);
+  updateAccount();
+  alert("Login successful!");
+}
+
+/* ========== Nav binding ========== */
+document.querySelectorAll('.nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.dataset.page;
+    if(page === 'register') showRegisterPage();
+    else if(page === 'login') showLoginPage();
+    else if(page === 'admin') showAdminPage();
+    else if(page === 'home') goHome();
+    else if(page === 'logout') logout();
+    else if(page === 'profile' || page === 'premium') showProfilePage();
+    else if(page === 'search' || page === 'pm') alert('This feature is not available in this demo.');
+  });
+});
+
+/* ========== Forum sections ========== */
+function renderForum(){
+  const area = document.getElementById('forumArea');
+  if(!area) return;
+  const sections = ["General", "CS:GO", "CS2"];
+  area.innerHTML = sections.map(name => `
+    <section class="panel">
+      <div class="section-head">${name}</div>
+      <div class="row">
+        <div class="main empty">
+          <div class="title" style="color:var(--muted);font-weight:normal;">No posts yet</div>
+          <div class="desc"></div>
+        </div>
+        <div class="last"></div>
+      </div>
+    </section>
+  `).join('');
+}
+
+/* ========== Chat ========== */
+function sendChat(e){
+  e.preventDefault();
+  const input = document.getElementById('chatInput');
+  const val = input.value.trim();
+  if(!val) return;
+  const user = getCurrentUser() || 'Guest';
+  const list = document.getElementById('chatList');
+  const line = document.createElement('div');
+  line.innerHTML = '<span style="color:#888">now</span> <b style="color:#65a7df">'+escapeHtml(user)+':</b> '+escapeHtml(val);
+  list.appendChild(line);
+  input.value = '';
+  list.scrollTop = list.scrollHeight;
+}
+
+/* ========== Utilities ========== */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+function escapeAttr(s){
+  return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+/* ========== Init ========== */
+initAdmin();
+updateAccount();
+</script>
+</body>
+</html>
